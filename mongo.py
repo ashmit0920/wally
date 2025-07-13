@@ -1,6 +1,7 @@
 from pymongo import MongoClient
 from dotenv import load_dotenv
 import os
+import json
 
 load_dotenv()
 
@@ -16,19 +17,26 @@ collection = db[COLLECTION_NAME]
 
 
 def find_userdata(name: str):
-    doc = collection.find_one({"name": name})
-    return doc if doc else "User not found"
+    doc = collection.find_one({"name": name.lower()})
+    return json.loads(doc) if doc else "User not found"
 
 
 def find_previously_bought(name: str):
-    doc = collection.find_one({"name": name})
+    doc = collection.find_one({"name": name.lower()})
     prev = doc['previously_bought']
 
     return prev if prev else "No previously bought items found."
 
 
 def find_cart_items(name: str):
-    doc = collection.find_one({"name": name})
+    doc = collection.find_one({"name": name.lower()})
     cart_items = doc['cart_items']
 
     return cart_items if cart_items else "Cart is empty."
+
+
+def find_budget(name: str):
+    doc = collection.find_one({"name": name.lower()})
+    budget = doc['budget']
+
+    return budget if budget else "No budget set."

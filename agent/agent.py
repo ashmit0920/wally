@@ -1,8 +1,9 @@
 from google.adk.agents import Agent
 import google.generativeai as genai
+from mongo import find_userdata, find_previously_bought, find_cart_items, find_budget
+
 
 # --- Tools ---
-
 
 def recipe_suggester(ingredients: str) -> str:
     """Suggest recipes based on user-provided ingredients."""
@@ -13,17 +14,29 @@ def recipe_suggester(ingredients: str) -> str:
     return response.text
 
 
-def recommend_items(purchase_history: str) -> str:
+def access_cart_items(name: str) -> str:
+    items = find_cart_items(name)
+    return items
+
+
+def recommend_items(name: str) -> str:
     """Recommend items based on past purchases."""
-    prompt = f"Based on the following past purchases, suggest 3 useful products the customer may like: {purchase_history}"
+    purchase_history = find_previously_bought(name)
+    if not purchase_history:
+        return "Could not find any past purchases for this user to recommend based on."
+
+    prompt = f"Based on the following past purchases, suggest one or two more products to the user: {purchase_history}"
     response = genai.GenerativeModel(
         "gemini-2.0-flash").generate_content(prompt)
     return response.text
 
 
-def budget_alert(cart_items: str, budget: float) -> str:
+def budget_alert(name: str) -> str:
     """Estimate total and alert if cart exceeds budget."""
-    prompt = f"These are the cart items and prices: {cart_items}. The budget is ₹{budget}. Is the total over budget? Suggest cheaper alternatives if needed."
+    budget = find_budget(name)
+    cart_items = find_cart_items(name)
+
+    prompt = f"These are the cart items and prices: {cart_items}. The budget is ₹{budget}. Is the total over budget?"
     response = genai.GenerativeModel(
         "gemini-2.0-flash").generate_content(prompt)
     return response.text
@@ -38,5 +51,5 @@ root_agent = Agent(
     instruction=(
         "You are Wally - a helpful shopping agent who can answer user questions about recipes, recommend items based on past purchases and issue budget alerts to users."
     ),
-    tools=[recipe_suggester, recommend_items, budget_alert]
+    tools=[recipe_suggester, access_cart_items, recommend_items, budget_alert]
 )
