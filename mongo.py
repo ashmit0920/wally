@@ -46,15 +46,12 @@ def find_budget(name: str):
 
 
 def find_products(product_name: str) -> str:
-    query = {"name": {"$regex": re.escape(product_name), "$options": "i"}}
-    # result = product_collection.find(query)
-    # products = []
-    # for doc in result:
-    #     products.append(doc)
 
     def serialize_doc(doc):
         doc["_id"] = str(doc["_id"])  # convert ObjectId to string
         return doc
+
+    query = {"name": {"$regex": re.escape(product_name), "$options": "i"}}
 
     products = [serialize_doc(doc) for doc in product_collection.find(query)]
 
