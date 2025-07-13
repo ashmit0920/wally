@@ -1,6 +1,6 @@
 from google.adk.agents import Agent
 import google.generativeai as genai
-from mongo import find_userdata, find_previously_bought, find_cart_items, find_budget
+from mongo import find_userdata, find_previously_bought, find_cart_items, find_products, find_budget
 
 
 # --- Tools ---
@@ -33,13 +33,20 @@ def recommend_items(name: str) -> str:
 
 def budget_alert(name: str) -> str:
     """Estimate total and alert if cart exceeds budget."""
-    budget = find_budget(name)
-    cart_items = find_cart_items(name)
+    userdata = find_userdata(name)
+    budget = userdata['budget']
+    cart_items = userdata['cart_items']
+    # budget = find_budget(name)
+    # cart_items = find_cart_items(name)
 
-    prompt = f"These are the cart items and prices: {cart_items}. The budget is ₹{budget}. Is the total over budget?"
+    prompt = f"These are the cart items and prices: {cart_items}. The budget is ₹{budget}. Is the total over budget? In case its over budget, mention the cart total and the specified budget."
     response = genai.GenerativeModel(
         "gemini-2.0-flash").generate_content(prompt)
     return response.text
+
+
+def products(product_name: str):
+    return find_products(product_name)
 
 
 root_agent = Agent(
@@ -49,7 +56,8 @@ root_agent = Agent(
         "Agent to enhance shopping experience for users."
     ),
     instruction=(
-        "You are Wally - a helpful shopping agent who can answer user questions about recipes, recommend items based on past purchases and issue budget alerts to users."
+        "You are Wally - a helpful shopping agent who can answer user questions about recipes, products, recommend items based on past purchases and issue budget alerts to users. Do not answer any queries that are not related to shopping or recipes."
     ),
-    tools=[recipe_suggester, access_cart_items, recommend_items, budget_alert]
+    tools=[recipe_suggester, access_cart_items,
+           recommend_items, budget_alert, products]
 )
