@@ -17,4 +17,18 @@ collection = db[COLLECTION_NAME]
 
 def find_userdata(name: str):
     doc = collection.find_one({"name": name})
-    return doc
+    return doc if doc else "User not found"
+
+
+def find_previously_bought(name: str):
+    doc = collection.find_one({"name": name})
+    prev = doc['previously_bought']
+
+    return prev if prev else "No previously bought items found."
+
+
+def find_cart_items(name: str):
+    doc = collection.find_one({"name": name})
+    cart_items = doc['cart_items']
+
+    return cart_items if cart_items else "Cart is empty."
