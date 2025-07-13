@@ -1,16 +1,8 @@
 from google.adk.agents import Agent
 import google.generativeai as genai
-# from dotenv import load_dotenv
-# import os
-
-# load_dotenv()
-# GEMINI_KEY = os.getenv("API_KEY")
-
-# Initialize Gemini model
-# genai.configure(api_key="YOUR_GEMINI_API_KEY")
-
 
 # --- Tools ---
+
 
 def recipe_suggester(ingredients: str) -> str:
     """Suggest recipes based on user-provided ingredients."""
@@ -36,23 +28,6 @@ def budget_alert(cart_items: str, budget: float) -> str:
         "gemini-2.0-flash").generate_content(prompt)
     return response.text
 
-# Register tools with agent
-# agent.register(recipe_suggester)
-# agent.register(recommend_items)
-# agent.register(budget_alert)
-
-# --- Run demo session ---
-
-
-def run_demo():
-    print("Welcome to Wally (demo mode) 👋")
-    while True:
-        user_input = input("You: ")
-        if user_input.lower() in ['exit', 'quit']:
-            break
-        response = root_agent(user_input)
-        print(f"Wally: {response.text}")
-
 
 root_agent = Agent(
     name="shopping_agent",
@@ -61,7 +36,7 @@ root_agent = Agent(
         "Agent to enhance shopping experience for users."
     ),
     instruction=(
-        "You are a helpful shopping agent who can answer user questions about recipes, recommend items based on past purchases and issue budget alerts to users."
+        "You are Wally - a helpful shopping agent who can answer user questions about recipes, recommend items based on past purchases and issue budget alerts to users."
     ),
     tools=[recipe_suggester, recommend_items, budget_alert]
 )
